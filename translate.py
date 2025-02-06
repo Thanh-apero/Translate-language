@@ -11,6 +11,9 @@ Original file is located at
 
 import json
 import google.generativeai as genai
+import os
+from translator_core import translate_xml_file, request
+import time
 
 api_keys = [
     "AIzaSyB_59fjCUN_vGW8FnPf5CZdl267_yfiOBs",
@@ -42,9 +45,15 @@ def request(input_data):
         generation_config=generation_config,
     )
     response = model.generate_content([
+        "input: {\n  \"source_language\": \"en\",\n  \"target_language\": \"it\",\n  \"strings\": [\n    {\"id\": 1, \"text\": \"Forgot email?\"},\n    {\"id\": 2, \"text\": \"Go back to the app and click on the Google drive feature\"},\n    {\"id\": 3, \"text\": \"My File\"},\n    {\"id\": 4, \"text\": \"Open image fail!\"}\n  ]\n}",
+        "output: {\n  \"translations\": [\n    {\"id\": 1, \"text\": \"Hai dimenticato l\\'email?\"},\n    {\"id\": 2, \"text\": \"Torna all\\'app e clicca sulla funzione Google Drive\"},\n    {\"id\": 3, \"text\": \"Il mio file\"},\n    {\"id\": 4, \"text\": \"Apertura dell\\'immagine non riuscita!\"}\n  ]\n}",
+        "input: {\n  \"source_language\": \"en\",\n  \"target_language\": \"fr\",\n  \"strings\": [\n    {\"id\": 1, \"text\": \"Forgot email?\"},\n    {\"id\": 2, \"text\": \"Go back to the app and click on the Google drive feature\"},\n    {\"id\": 3, \"text\": \"My File\"},\n    {\"id\": 4, \"text\": \"Open image fail!\"}\n  ]\n}",
+        "output: {\n  \"translations\": [\n    {\"id\": 1, \"text\": \"Vous avez oublié l\\'email ?\"},\n    {\"id\": 2, \"text\": \"Retournez à l\\'application et cliquez sur la fonctionnalité Google Drive\"},\n    {\"id\": 3, \"text\": \"Mon fichier\"},\n    {\"id\": 4, \"text\": \"Échec de l\\'ouverture de l\\'image !\"}\n  ]\n}",
+        "input: {\n  \"source_language\": \"en\",\n  \"target_language\": \"it\",\n  \"strings\": [\n    {\"id\": 1, \"text\": \"Sign in\"},\n    {\"id\": 2, \"text\": \"Use your Google account. The account will be added to this device and will be available for other Google apps\"},\n    {\"id\": 3, \"text\": \"Learn more about using your account\"}\n  ]\n}",
+        "output: {\n  \"translations\": [\n    {\"id\": 1, \"text\": \"Accedi\"},\n    {\"id\": 2, \"text\": \"Usa il tuo account Google. L\\'account verrà aggiunto a questo dispositivo e sarà disponibile per altre app di Google\"},\n    {\"id\": 3, \"text\": \"Scopri di più sull\\'utilizzo del tuo account\"}\n  ]\n}",
         "input: {\n  \"source_language\": \"en\",\n  \"target_language\": \"ko\",\n  \"strings\": [\n    {\"id\": 1, \"text\": \"Your document has been saved successfully.\"},\n    {\"id\": 2, \"text\": \"Please check your internet connection and try again.\"},\n    {\"id\": 3, \"text\": \"This feature is not available in the free version.\"}\n  ]\n}",
         "output: {\n  \"translations\": [\n    {\"id\": 1, \"text\": \"문서가 성공적으로 저장되었습니다.\"},\n    {\"id\": 2, \"text\": \"인터넷 연결을 확인하고 다시 시도하세요.\"},\n    {\"id\": 3, \"text\": \"이 기능은 무료 버전에서 사용할 수 없습니다.\"}\n  ]\n}",
-        "input: {\n  \"source_language\": \"en\",\n  \"target_language\": \"ko\",\n  \"strings\": [\n    {\"id\": 1, \"text\": \"Don’t forget to write tag #XpertScan\"},\n    {\"id\": 2, \"text\": \"Can't find an app that supports this action\"}\n  ]\n}",
+        "input: {\n  \"source_language\": \"en\",\n  \"target_language\": \"ko\",\n  \"strings\": [\n    {\"id\": 1, \"text\": \"Don't forget to write tag #XpertScan\"},\n    {\"id\": 2, \"text\": \"Can't find an app that supports this action\"}\n  ]\n}",
         "output: {\n  \"translations\": [\n    {\"id\": 1, \"text\": \"#XpertScan 태그를 작성하는 것을 잊지 마세요\"},\n    {\"id\": 2, \"text\": \"이 작업을 지원하는 앱을 찾을 수 없습니다\"}\n  ]\n}",
         "input: {\n  \"source_language\": \"en\",\n  \"target_language\": \"zh\",\n  \"strings\": [\n    {\"id\": 1, \"text\": \"Export as PDF failed\"},\n    {\"id\": 2, \"text\": \"Share as PDF failed\"},\n    {\"id\": 3, \"text\": \"Export to gallery failed\"},\n    {\"id\": 4, \"text\": \"Share as picture failed\"},\n    {\"id\": 5, \"text\": \"Print PDF failed\"},\n    {\"id\": 6, \"text\": \"Insert password\"}\n  ]\n}",
         "output: {\n  \"translations\": [\n    {\"id\": 1, \"text\": \"导出为PDF失败\"},\n    {\"id\": 2, \"text\": \"分享为PDF失败\"},\n    {\"id\": 3, \"text\": \"导出到图库失败\"},\n    {\"id\": 4, \"text\": \"分享为图片失败\"},\n    {\"id\": 5, \"text\": \"打印PDF失败\"},\n    {\"id\": 6, \"text\": \"请输入密码\"}\n  ]\n}",
@@ -192,17 +201,41 @@ def test_translation(text, source_lang, target_lang, translation_function):
     translations = extract_translations_from_response(response)
     return translations[0]
 
-import os
-import time
+# Đường dẫn local
+input_file = "source/strings.xml"  # Thư mục source trong project
+output_dir = "res"  # Thư mục res trong project
 
+# Danh sách ngôn ngữ cần dịch
 languages = ["vi", "fr", "de", "ko", "it"]
 
-input_file = "/content/drive/MyDrive/Colab Notebooks/source/strings.xml"
-output_dir = "/content/drive/MyDrive/Colab Notebooks/res"
+def main():
+    # Tạo thư mục source nếu chưa tồn tại
+    os.makedirs("source", exist_ok=True)
 
-for lang in languages:
-    lang_dir = os.path.join(output_dir, f"values-{lang}")
-    os.makedirs(lang_dir, exist_ok=True)
-    output_file = os.path.join(lang_dir, "strings.xml")
-    translate_xml_file(input_file, output_file, "en", lang, request)
-    time.sleep(10)
+    # Kiểm tra file input có tồn tại không
+    if not os.path.exists(input_file):
+        print(f"Error: Input file {input_file} not found!")
+        print("Please put your strings.xml file in the source folder.")
+        return
+
+    for lang in languages:
+        try:
+            # Tạo thư mục output cho từng ngôn ngữ
+            lang_dir = os.path.join(output_dir, f"values-{lang}")
+            os.makedirs(lang_dir, exist_ok=True)
+
+            output_file = os.path.join(lang_dir, "strings.xml")
+
+            print(f"\nStarting translation to {lang}...")
+            translate_xml_file(input_file, output_file, "en", lang, request)
+
+            # Thêm thời gian chờ giữa các ngôn ngữ
+            if lang != languages[-1]:  # Nếu không phải ngôn ngữ cuối cùng
+                print("Waiting 10 seconds before next language...")
+                time.sleep(10)
+
+        except Exception as e:
+            print(f"Error translating {lang}: {str(e)}")
+
+if __name__ == "__main__":
+    main()
