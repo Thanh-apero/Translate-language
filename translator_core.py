@@ -32,11 +32,24 @@ def get_next_api_key():
 @retry(wait=wait_exponential(multiplier=1, min=4, max=10), stop=stop_after_attempt(2))
 def request(input_data):
     try:
+        # Ensure input_data is properly formatted JSON
+        if isinstance(input_data, str):
+            try:
+                # Parse and re-serialize to ensure proper JSON formatting
+                data = json.loads(input_data)
+                input_data = json.dumps(data, ensure_ascii=False)
+            except json.JSONDecodeError as e:
+                print(f"Invalid JSON input: {str(e)}")
+                raise
+        
+        print("\nDebug - Input data:", input_data)  # Debug print
+        
         genai.configure(api_key=get_next_api_key())
         model = genai.GenerativeModel(
             model_name="gemini-2.0-flash",
             generation_config=generation_config,
         )
+        
         response = model.generate_content([
             "input: {\n  \"source_language\": \"en\",\n  \"target_language\": \"ko\",\n  \"strings\": [\n    {\"id\": 1, \"text\": \"Your document has been saved successfully.\"},\n    {\"id\": 2, \"text\": \"Please check your internet connection and try again.\"},\n    {\"id\": 3, \"text\": \"This feature is not available in the free version.\"}\n  ]\n}",
             "output: {\n  \"translations\": [\n    {\"id\": 1, \"text\": \"문서가 성공적으로 저장되었습니다.\"},\n    {\"id\": 2, \"text\": \"인터넷 연결을 확인하고 다시 시도하세요.\"},\n    {\"id\": 3, \"text\": \"이 기능은 무료 버전에서 사용할 수 없습니다.\"}\n  ]\n}",
@@ -50,14 +63,15 @@ def request(input_data):
             "output: {\n  \"translations\": [\n    {\"id\": 1, \"text\": \"Esportazione come PDF fallita\"},\n    {\"id\": 2, \"text\": \"Condivisione come PDF fallita\"},\n    {\"id\": 3, \"text\": \"Esportazione nella galleria fallita\"},\n    {\"id\": 4, \"text\": \"Condivisione come immagine fallita\"},\n    {\"id\": 5, \"text\": \"Stampa PDF fallita\"},\n    {\"id\": 6, \"text\": \"Inserisci la password\"}\n  ]\n}",
             "input: {\n  \"source_language\": \"en\",\n  \"target_language\": \"it\",\n  \"strings\": [\n    {\"id\": 1, \"text\": \"Export as PDF failed\"},\n    {\"id\": 2, \"text\": \"Share as PDF failed\"},\n    {\"id\": 3, \"text\": \"Export to gallery failed\"},\n    {\"id\": 4, \"text\": \"Share as picture failed\"},\n    {\"id\": 5, \"text\": \"Print PDF failed\"},\n    {\"id\": 6, \"text\": \"Insert password\"}\n  ]\n}",
             "output: {\n  \"translations\": [\n    {\"id\": 1, \"text\": \"Esportazione come PDF fallita\"},\n    {\"id\": 2, \"text\": \"Condivisione come PDF fallita\"},\n    {\"id\": 3, \"text\": \"Esportazione nella galleria fallita\"},\n    {\"id\": 4, \"text\": \"Condivisione come immagine fallita\"},\n    {\"id\": 5, \"text\": \"Stampa PDF fallita\"},\n    {\"id\": 6, \"text\": \"Inserisci la password\"}\n  ]\n}",
-            "input: {\n  \"source_language\": \"en\",\n  \"target_language\": \"it\",\n  \"strings\": [\n    {\"id\": 1, \"text\": \"Enable file access permission\"},\n    {\"id\": 2, \"text\": \"To open, edit, and do more with your files, grant us file access permission\"},\n    {\"id\": 3, \"text\": \"Grant access\"}\n  ]\n}",
-            "output: {\n  \"translations\": [\n    {\"id\": 1, \"text\": \"Accedi\"},\n    {\"id\": 2, \"text\": \"Usa il tuo account Google. L\\'account verrà aggiunto a questo dispositivo e sarà disponibile per altre app di Google\"},\n    {\"id\": 3, \"text\": \"Scopri di più sull\\'utilizzo del tuo account\"}\n  ]\n}",
             f"input 2: {input_data}",
             "output 2: ",
         ])
+        
+        print("\nDebug - Response:", response.text)  # Debug print
         return response
+        
     except Exception as e:
-        print(f"API call failed: {str(e)}, retrying once...")
+        print(f"\nDebug - Error details: {str(e)}")  # Debug print
         raise
 
 def generate_json_from_xml(source_language, target_language, xml_content):
