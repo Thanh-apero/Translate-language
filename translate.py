@@ -7,8 +7,6 @@ Original file is located at
     https://colab.research.google.com/drive/1_b5pa6glkUTaWFIr_VzUwaCGDT0_FLL9
 """
 
-
-
 import json
 import google.generativeai as genai
 import os
@@ -19,7 +17,7 @@ api_keys = [
     "AIzaSyB_59fjCUN_vGW8FnPf5CZdl267_yfiOBs",
     "AIzaSyCN7x2uMvL2cHq0jdBq9aMJ9ijJYct4QJ0"
 ]
-current_key_index = 0  # Chỉ mục để theo dõi key hiện tại
+current_key_index = 0
 
 # Định nghĩa cấu hình sinh nội dung
 generation_config = {
@@ -38,7 +36,6 @@ def get_next_api_key():
     return key
 
 def request(input_data):
-
     genai.configure(api_key=get_next_api_key())
     model = genai.GenerativeModel(
         model_name="gemini-2.0-flash",
@@ -66,8 +63,6 @@ def request(input_data):
         f"input 2: {input_data}",
         "output 2: ",
     ])
-
-    # Return the response content
     return response
 
 import xml.etree.ElementTree as ET

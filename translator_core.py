@@ -31,7 +31,6 @@ def get_next_api_key():
 
 @retry(wait=wait_exponential(multiplier=1, min=4, max=10), stop=stop_after_attempt(2))
 def request(input_data):
-    """Gọi API với retry và thời gian chờ"""
     try:
         genai.configure(api_key=get_next_api_key())
         model = genai.GenerativeModel(
@@ -85,6 +84,19 @@ def generate_json_from_xml(source_language, target_language, xml_content):
 
     return json_structure, string_metadata, root
 
+def escape_xml_string(text):
+    if not isinstance(text, str):
+        return text
+        
+    replacements = {
+        '&': '&amp;',
+        "'": "\\'",
+    }
+    
+    for old, new in replacements.items():
+        text = text.replace(old, new)
+    return text
+
 def update_xml_with_translations(root, translations, string_metadata):
     new_root = copy.deepcopy(root)
     translation_map = {}
@@ -94,7 +106,7 @@ def update_xml_with_translations(root, translations, string_metadata):
     for string_elem in new_root.findall('string'):
         original_name = string_elem.attrib.get('name')
         if original_name in translation_map:
-            string_elem.text = translation_map[original_name]
+            string_elem.text = escape_xml_string(translation_map[original_name])
 
     return new_root
 
@@ -150,7 +162,6 @@ def translate_xml_file(input_xml_path, output_xml_path, source_lang, target_lang
         raise 
 
 def translate_text(text, source_lang, target_lang):
-    """Dịch một chuỗi văn bản đơn lẻ"""
     json_input = {
         "source_language": source_lang,
         "target_language": target_lang,
@@ -162,45 +173,34 @@ def translate_text(text, source_lang, target_lang):
     return translations[0]['text']
 
 def append_to_xml_file(output_file, string_name, text, translated_text):
-    """Thêm cặp chuỗi mới vào file XML"""
     try:
-        # Đọc toàn bộ nội dung file
         with open(output_file, 'r', encoding='utf-8') as f:
             content = f.read()
             
-        # Nếu file trống, tạo cấu trúc XML mới
         if not content.strip():
             content = '<?xml version="1.0" encoding="utf-8"?>\n<resources>\n</resources>'
             
-        # Tìm vị trí thẻ đóng </resources>
         end_pos = content.rfind('</resources>')
         if end_pos == -1:
             raise ValueError("Invalid XML format: missing </resources> tag")
             
-        # Kiểm tra xem string_name đã tồn tại chưa
         if f'name="{string_name}"' in content:
-            # Nếu đã tồn tại, cập nhật giá trị
             pattern = f'<string name="{string_name}"[^>]*>(.*?)</string>'
             content = re.sub(pattern, f'<string name="{string_name}">{translated_text}</string>', content)
         else:
-            # Nếu chưa tồn tại, thêm mới vào trước thẻ đóng </resources>
-            # Lấy indent từ dòng trước đó
             last_newline = content.rfind('\n', 0, end_pos)
             if last_newline != -1:
                 indent = content[last_newline + 1:end_pos].replace('</resources>', '')
             else:
                 indent = '    '
                 
-            # Thêm chuỗi mới với indent tương tự
             new_string = f'{indent}<string name="{string_name}">{translated_text}</string>\n{indent}'
             content = content[:end_pos] + new_string + content[end_pos:]
 
-        # Ghi lại nội dung file
         with open(output_file, 'w', encoding='utf-8') as f:
             f.write(content)
 
     except FileNotFoundError:
-        # Nếu file không tồn tại, tạo file mới với chuỗi đầu tiên
         content = f'''<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="{string_name}">{translated_text}</string>
@@ -209,9 +209,6 @@ def append_to_xml_file(output_file, string_name, text, translated_text):
             f.write(content)
 
 def translate_texts_batch(texts, source_lang, target_lang, batch_size=20, callback=None):
-    """
-    Dịch một nhóm văn bản cùng lúc, với giới hạn số lượng chuỗi và thời gian chờ
-    """
     all_translations = []
     total_batches = (len(texts) + batch_size - 1) // batch_size
     
@@ -246,12 +243,7 @@ def translate_texts_batch(texts, source_lang, target_lang, batch_size=20, callba
     return all_translations
 
 def translate_and_append_batch(string_texts, output_dir, selected_folders=None, callback=None, root=None):
-    """
-    Dịch và thêm nhiều chuỗi cùng lúc
-    string_texts: list of tuples (string_name, text)
-    """
     def io_task():
-        """Thực hiện các thao tác I/O trong thread riêng"""
         try:
             if selected_folders is None:
                 dirs = [d for d in os.listdir(output_dir) 
@@ -276,7 +268,6 @@ def translate_and_append_batch(string_texts, output_dir, selected_folders=None, 
                         if callback:
                             callback(f"\nTranslating to {lang}...")
                         
-                        # Dịch trong thread I/O
                         def translate():
                             return translate_texts_batch(
                                 texts, 
@@ -296,7 +287,6 @@ def translate_and_append_batch(string_texts, output_dir, selected_folders=None, 
                     if callback:
                         callback(f"Saving translations to {dir_name}...")
                     
-                    # Đọc file XML trong thread I/O
                     try:
                         tree = ET.parse(output_file)
                         root_elem = tree.getroot()
@@ -304,17 +294,15 @@ def translate_and_append_batch(string_texts, output_dir, selected_folders=None, 
                         root_elem = ET.Element("resources")
                         tree = ET.ElementTree(root_elem)
 
-                    # Cập nhật nội dung XML
                     for string_name, translated_text in zip(string_names, translated_texts):
                         existing = root_elem.find(f".//string[@name='{string_name}']")
                         if existing is not None:
-                            existing.text = translated_text
+                            existing.text = escape_xml_string(translated_text)
                         else:
                             new_string = ET.SubElement(root_elem, "string")
                             new_string.set("name", string_name)
-                            new_string.text = translated_text
+                            new_string.text = escape_xml_string(translated_text)
 
-                    # Ghi file trong thread I/O
                     lines = ['<?xml version="1.0" encoding="utf-8"?>', '<resources>']
                     for string_elem in root_elem.findall('string'):
                         attrs = string_elem.attrib
@@ -344,16 +332,13 @@ def translate_and_append_batch(string_texts, output_dir, selected_folders=None, 
     if callback:
         callback(f"Processing {len(string_texts)} strings...")
 
-    # Chạy toàn bộ xử lý I/O trong thread riêng
     io_thread = threading.Thread(target=io_task)
     io_thread.daemon = True
     io_thread.start()
 
 def main():
-    # Tạo thư mục source nếu chưa tồn tại
     os.makedirs("source", exist_ok=True)
     
-    # Kiểm tra file input có tồn tại không
     if not os.path.exists(input_file):
         print(f"Error: Input file {input_file} not found!")
         print("Please put your strings.xml file in the source folder.")
@@ -361,7 +346,6 @@ def main():
 
     for lang in languages:
         try:
-            # Tạo thư mục output cho từng ngôn ngữ
             lang_dir = os.path.join(output_dir, f"values-{lang}")
             os.makedirs(lang_dir, exist_ok=True)
             
@@ -370,15 +354,14 @@ def main():
             print(f"\nStarting translation to {lang}...")
             translate_xml_file(input_file, output_file, "en", lang, request)
             
-            # Thay đổi cách xử lý thời gian chờ
-            if lang != languages[-1]:  # Nếu không phải ngôn ngữ cuối cùng
+            if lang != languages[-1]:
                 print("Waiting before next language...")
-                # Chia thời gian chờ thành các khoảng nhỏ
                 for j in range(10, 0, -1):
                     print(f"Next language in {j} seconds...")
-                    # Chia mỗi giây thành 10 khoảng nhỏ hơn
                     for _ in range(10):
-                        time.sleep(0.1)  # Chờ 0.1 giây mỗi lần
-                
+                        time.sleep(0.1)
         except Exception as e:
-            print(f"Error translating {lang}: {str(e)}") 
+            print(f"Error translating {lang}: {str(e)}")
+
+if __name__ == "__main__":
+    main() 
