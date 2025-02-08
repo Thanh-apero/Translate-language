@@ -157,7 +157,19 @@ def translate_xml_file(input_xml_path, output_xml_path, source_lang, target_lang
     if callback:
         callback("Calling translation API...")
     
-    response = request(json.dumps(json_input))
+    try:
+        response = request(json.dumps(json_input))
+    except Exception as e:
+        if callback:
+            callback(f"API request failed: {str(e)}")
+            callback("Waiting 60 seconds before retrying...")
+        time.sleep(60)
+        try:
+            response = request(json.dumps(json_input))
+        except Exception as e:
+            if callback:
+                callback(f"Retry failed: {str(e)}")
+            raise
 
     try:
         translations = extract_translations_from_response(response)
@@ -169,6 +181,8 @@ def translate_xml_file(input_xml_path, output_xml_path, source_lang, target_lang
         
         if callback:
             callback(f"Translation completed. Output saved to: {output_xml_path}")
+            callback("Waiting 30 seconds before next translation...")
+        time.sleep(30)
 
     except Exception as e:
         if callback:
@@ -246,13 +260,21 @@ def translate_texts_batch(texts, source_lang, target_lang, batch_size=20, callba
             
             if current_batch < total_batches:
                 if callback:
-                    callback(f"Waiting 5 seconds before next batch...")
-                time.sleep(5)
+                    callback(f"Waiting 30 seconds before next batch to avoid API limits...")
+                time.sleep(15)
                 
         except Exception as e:
             if callback:
                 callback(f"Error in batch {current_batch}: {str(e)}")
-            return None
+                callback("Waiting 60 seconds before retrying...")
+                time.sleep(60)
+                try:
+                    response = request(json.dumps(json_input))
+                    translations = extract_translations_from_response(response)
+                    all_translations.extend(t['text'] for t in translations)
+                except Exception as e:
+                    callback(f"Retry failed: {str(e)}")
+                    return None
             
     return all_translations
 
