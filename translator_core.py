@@ -296,7 +296,7 @@ def translate_texts_batch(texts, source_lang, target_lang, batch_size=20, callba
             
     return all_translations
 
-def translate_and_append_batch(string_texts, output_dir, selected_folders=None, callback=None, root=None):
+def translate_and_append_batch(string_texts, output_dir, selected_folders=None, callback=None, source_xml_path=None):
     def io_task():
         try:
             if selected_folders is None:
@@ -313,15 +313,22 @@ def translate_and_append_batch(string_texts, output_dir, selected_folders=None, 
 
             # Lọc ra các chuỗi có translatable != "false"
             filtered_string_texts = []
-            for string_name, text in string_texts:
-                if root is not None:
-                    string_elem = root.find(f'.//string[@name="{string_name}"]')
-                    if string_elem is not None:
-                        translatable = string_elem.attrib.get('translatable', 'true').lower()
-                        if translatable != "false":
-                            filtered_string_texts.append((string_name, text))
-                else:
-                    filtered_string_texts.append((string_name, text))
+            if source_xml_path and os.path.exists(source_xml_path):
+                try:
+                    tree = ET.parse(source_xml_path)
+                    xml_root = tree.getroot()
+                    for string_name, text in string_texts:
+                        string_elem = xml_root.find(f'.//string[@name="{string_name}"]')
+                        if string_elem is not None:
+                            translatable = string_elem.attrib.get('translatable', 'true').lower()
+                            if translatable != "false":
+                                filtered_string_texts.append((string_name, text))
+                except Exception as e:
+                    if callback:
+                        callback(f"Warning: Could not parse source XML file: {str(e)}")
+                    filtered_string_texts = string_texts
+            else:
+                filtered_string_texts = string_texts
 
             if not filtered_string_texts:
                 if callback:
@@ -360,27 +367,41 @@ def translate_and_append_batch(string_texts, output_dir, selected_folders=None, 
                     
                     try:
                         with open(output_file, 'r', encoding='utf-8') as f:
-                            content = f.read()
+                            lines = f.readlines()
+                            
+                        if not lines:
+                            lines = ['<?xml version="1.0" encoding="utf-8"?>\n', '<resources>\n', '</resources>']
+                            
+                        # Xử lý từng string và thêm vào content
+                        for string_name, translated_text in zip(string_names, translated_texts):
+                            pattern = f'<string name="{string_name}"[^>]*>(.*?)</string>'
+                            found = False
+                            for i, line in enumerate(lines):
+                                if re.search(pattern, line):
+                                    # Nếu string đã tồn tại, cập nhật nó
+                                    lines[i] = f'    <string name="{string_name}">{translated_text}</string>\n'
+                                    found = True
+                                    break
+                                    
+                            if not found:
+                                # Nếu là string mới, thêm vào trước </resources>
+                                for i, line in enumerate(lines):
+                                    if '</resources>' in line:
+                                        lines.insert(i, f'    <string name="{string_name}">{translated_text}</string>\n')
+                                        break
+
+                        with open(output_file, 'w', encoding='utf-8') as f:
+                            f.writelines(lines)
+
                     except FileNotFoundError:
-                        content = '<?xml version="1.0" encoding="utf-8"?>\n<resources>\n</resources>'
-
-                    for string_name, translated_text in zip(string_names, translated_texts):
-                        pattern = f'<string name="{string_name}"[^>]*>(.*?)</string>'
-                        if re.search(pattern, content):
-                            content = re.sub(pattern, f'<string name="{string_name}">{translated_text}</string>', content)
-                        else:
-                            insert_pos = content.rfind('</resources>')
-                            if insert_pos != -1:
-                                last_string_pos = content.rfind('</string>', 0, insert_pos)
-                                if last_string_pos != -1:
-                                    indent = '\n    '
-                                else:
-                                    indent = '    '
-                                new_string = f'{indent}<string name="{string_name}">{translated_text}</string>\n'
-                                content = content[:insert_pos] + new_string + content[insert_pos:]
-
-                    with open(output_file, 'w', encoding='utf-8') as f:
-                        f.write(content)
+                        # Tạo file mới nếu chưa tồn tại
+                        content = '<?xml version="1.0" encoding="utf-8"?>\n<resources>\n'
+                        for string_name, translated_text in zip(string_names, translated_texts):
+                            content += f'    <string name="{string_name}">{translated_text}</string>\n'
+                        content += '</resources>'
+                        
+                        with open(output_file, 'w', encoding='utf-8') as f:
+                            f.write(content)
 
                     if callback:
                         callback(f"Added/Updated {len(filtered_string_texts)} strings to {dir_name}")

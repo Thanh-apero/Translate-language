@@ -163,6 +163,7 @@ imports:
  &#8226;   <a href="#pyi_rth_inspect.py">pyi_rth_inspect.py</a>
  &#8226;   <a href="#pyi_rth_multiprocessing.py">pyi_rth_multiprocessing.py</a>
  &#8226;   <a href="#pyi_rth_pkgutil.py">pyi_rth_pkgutil.py</a>
+ &#8226;   <a href="#queue">queue</a>
  &#8226;   <a href="#re">re</a>
  &#8226;   <a href="#re._casefix">re._casefix</a>
  &#8226;   <a href="#re._compiler">re._compiler</a>
@@ -173,8 +174,10 @@ imports:
  &#8226;   <a href="#sre_constants">sre_constants</a>
  &#8226;   <a href="#sre_parse">sre_parse</a>
  &#8226;   <a href="#stat">stat</a>
+ &#8226;   <a href="#threading">threading</a>
  &#8226;   <a href="#tkinter">tkinter</a>
  &#8226;   <a href="#tkinter.filedialog">tkinter.filedialog</a>
+ &#8226;   <a href="#tkinter.messagebox">tkinter.messagebox</a>
  &#8226;   <a href="#tkinter.ttk">tkinter.ttk</a>
  &#8226;   <a href="#traceback">traceback</a>
  &#8226;   <a href="#translator_core">translator_core</a>
@@ -553,6 +556,17 @@ imported by:
 <span class="moduletype">MissingModule</span>  <div class="import">
 imported by:
     <a href="#google.auth.transport.requests">google.auth.transport.requests</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="'tornado.concurrent'"></a>
+  <a target="code" href="" type="text/plain"><tt>'tornado.concurrent'</tt></a>
+<span class="moduletype">MissingModule</span>  <div class="import">
+imported by:
+    <a href="#tenacity.tornadoweb">tenacity.tornadoweb</a>
 
   </div>
 
@@ -1941,6 +1955,11 @@ imported by:
  &#8226;   <a href="#pydantic.v1.types">pydantic.v1.types</a>
  &#8226;   <a href="#pyparsing.core">pyparsing.core</a>
  &#8226;   <a href="#selectors">selectors</a>
+ &#8226;   <a href="#tenacity">tenacity</a>
+ &#8226;   <a href="#tenacity.asyncio.retry">tenacity.asyncio.retry</a>
+ &#8226;   <a href="#tenacity.retry">tenacity.retry</a>
+ &#8226;   <a href="#tenacity.stop">tenacity.stop</a>
+ &#8226;   <a href="#tenacity.wait">tenacity.wait</a>
  &#8226;   <a href="#typing">typing</a>
  &#8226;   <a href="#typing_extensions">typing_extensions</a>
 
@@ -2149,6 +2168,7 @@ imported by:
  &#8226;   <a href="#grpc.aio._call">grpc.aio._call</a>
  &#8226;   <a href="#grpc.aio._channel">grpc.aio._channel</a>
  &#8226;   <a href="#grpc.aio._interceptor">grpc.aio._interceptor</a>
+ &#8226;   <a href="#tenacity.asyncio">tenacity.asyncio</a>
  &#8226;   <a href="#tqdm.asyncio">tqdm.asyncio</a>
  &#8226;   <a href="#unittest.async_case">unittest.async_case</a>
 
@@ -4131,6 +4151,7 @@ imports:
 imported by:
     <a href="#concurrent.futures">concurrent.futures</a>
  &#8226;   <a href="#grpc._server">grpc._server</a>
+ &#8226;   <a href="#tenacity">tenacity</a>
 
   </div>
 
@@ -4159,6 +4180,7 @@ imported by:
  &#8226;   <a href="#google.api_core.future.polling">google.api_core.future.polling</a>
  &#8226;   <a href="#grpc._server">grpc._server</a>
  &#8226;   <a href="#grpc.aio._server">grpc.aio._server</a>
+ &#8226;   <a href="#tenacity">tenacity</a>
 
   </div>
 
@@ -4702,6 +4724,7 @@ imported by:
  &#8226;   <a href="#pydantic.v1.json">pydantic.v1.json</a>
  &#8226;   <a href="#pydantic.v1.schema">pydantic.v1.schema</a>
  &#8226;   <a href="#pyparsing.diagram">pyparsing.diagram</a>
+ &#8226;   <a href="#tenacity">tenacity</a>
  &#8226;   <a href="#urllib3.contrib.emscripten.request">urllib3.contrib.emscripten.request</a>
  &#8226;   <a href="#urllib3.contrib.emscripten.response">urllib3.contrib.emscripten.response</a>
 
@@ -4764,6 +4787,7 @@ imported by:
  &#8226;   <a href="#pyparsing.common">pyparsing.common</a>
  &#8226;   <a href="#requests.models">requests.models</a>
  &#8226;   <a href="#requests.sessions">requests.sessions</a>
+ &#8226;   <a href="#tenacity._utils">tenacity._utils</a>
  &#8226;   <a href="#tqdm.std">tqdm.std</a>
  &#8226;   <a href="#urllib3.connection">urllib3.connection</a>
  &#8226;   <a href="#xmlrpc.client">xmlrpc.client</a>
@@ -8297,6 +8321,9 @@ imported by:
  &#8226;   <a href="#re">re</a>
  &#8226;   <a href="#statistics">statistics</a>
  &#8226;   <a href="#tempfile">tempfile</a>
+ &#8226;   <a href="#tenacity">tenacity</a>
+ &#8226;   <a href="#tenacity._utils">tenacity._utils</a>
+ &#8226;   <a href="#tenacity.asyncio">tenacity.asyncio</a>
  &#8226;   <a href="#tokenize">tokenize</a>
  &#8226;   <a href="#tqdm.utils">tqdm.utils</a>
  &#8226;   <a href="#tracemalloc">tracemalloc</a>
@@ -21449,6 +21476,7 @@ imported by:
  &#8226;   <a href="#pyparsing.exceptions">pyparsing.exceptions</a>
  &#8226;   <a href="#pyparsing.util">pyparsing.util</a>
  &#8226;   <a href="#rlcompleter">rlcompleter</a>
+ &#8226;   <a href="#tenacity._utils">tenacity._utils</a>
  &#8226;   <a href="#tqdm.utils">tqdm.utils</a>
  &#8226;   <a href="#typing">typing</a>
  &#8226;   <a href="#typing_extensions">typing_extensions</a>
@@ -22033,6 +22061,9 @@ imported by:
  &#8226;   <a href="#proto._file_info">proto._file_info</a>
  &#8226;   <a href="#pyasn1.debug">pyasn1.debug</a>
  &#8226;   <a href="#requests">requests</a>
+ &#8226;   <a href="#tenacity.after">tenacity.after</a>
+ &#8226;   <a href="#tenacity.before">tenacity.before</a>
+ &#8226;   <a href="#tenacity.before_sleep">tenacity.before_sleep</a>
  &#8226;   <a href="#tqdm.cli">tqdm.cli</a>
  &#8226;   <a href="#unittest._log">unittest._log</a>
  &#8226;   <a href="#urllib3">urllib3</a>
@@ -28677,13 +28708,15 @@ imports:
   </div>
   <div class="import">
 imported by:
-    <a href="#concurrent.futures.process">concurrent.futures.process</a>
+    <a href="#app.py">app.py</a>
+ &#8226;   <a href="#concurrent.futures.process">concurrent.futures.process</a>
  &#8226;   <a href="#concurrent.futures.thread">concurrent.futures.thread</a>
  &#8226;   <a href="#multiprocessing.dummy">multiprocessing.dummy</a>
  &#8226;   <a href="#multiprocessing.dummy.connection">multiprocessing.dummy.connection</a>
  &#8226;   <a href="#multiprocessing.managers">multiprocessing.managers</a>
  &#8226;   <a href="#multiprocessing.pool">multiprocessing.pool</a>
  &#8226;   <a href="#multiprocessing.queues">multiprocessing.queues</a>
+ &#8226;   <a href="#translator_core">translator_core</a>
  &#8226;   <a href="#urllib3.connectionpool">urllib3.connectionpool</a>
 
   </div>
@@ -28754,6 +28787,7 @@ imported by:
  &#8226;   <a href="#secrets">secrets</a>
  &#8226;   <a href="#statistics">statistics</a>
  &#8226;   <a href="#tempfile">tempfile</a>
+ &#8226;   <a href="#tenacity.wait">tenacity.wait</a>
  &#8226;   <a href="#urllib3.util.retry">urllib3.util.retry</a>
  &#8226;   <a href="#uuid">uuid</a>
 
@@ -28922,6 +28956,7 @@ imported by:
  &#8226;   <a href="#string">string</a>
  &#8226;   <a href="#sysconfig">sysconfig</a>
  &#8226;   <a href="#tarfile">tarfile</a>
+ &#8226;   <a href="#tenacity.retry">tenacity.retry</a>
  &#8226;   <a href="#textwrap">textwrap</a>
  &#8226;   <a href="#tkinter">tkinter</a>
  &#8226;   <a href="#tokenize">tokenize</a>
@@ -28929,6 +28964,7 @@ imported by:
  &#8226;   <a href="#tqdm.gui">tqdm.gui</a>
  &#8226;   <a href="#tqdm.notebook">tqdm.notebook</a>
  &#8226;   <a href="#tqdm.utils">tqdm.utils</a>
+ &#8226;   <a href="#translator_core">translator_core</a>
  &#8226;   <a href="#typing">typing</a>
  &#8226;   <a href="#unittest.case">unittest.case</a>
  &#8226;   <a href="#unittest.loader">unittest.loader</a>
@@ -30055,6 +30091,17 @@ imported by:
 </div>
 
 <div class="node">
+  <a name="sniffio"></a>
+  <a target="code" href="" type="text/plain"><tt>sniffio</tt></a>
+<span class="moduletype">MissingModule</span>  <div class="import">
+imported by:
+    <a href="#tenacity.asyncio">tenacity.asyncio</a>
+
+  </div>
+
+</div>
+
+<div class="node">
   <a name="socket"></a>
   <a target="code" href="///C:/Users/Administrator/AppData/Local/Programs/Python/Python313/Lib/socket.py" type="text/plain"><tt>socket</tt></a>
 <span class="moduletype">SourceModule</span>  <div class="import">
@@ -30626,6 +30673,10 @@ imported by:
  &#8226;   <a href="#sysconfig">sysconfig</a>
  &#8226;   <a href="#tarfile">tarfile</a>
  &#8226;   <a href="#tempfile">tempfile</a>
+ &#8226;   <a href="#tenacity">tenacity</a>
+ &#8226;   <a href="#tenacity._utils">tenacity._utils</a>
+ &#8226;   <a href="#tenacity.asyncio">tenacity.asyncio</a>
+ &#8226;   <a href="#tenacity.tornadoweb">tenacity.tornadoweb</a>
  &#8226;   <a href="#threading">threading</a>
  &#8226;   <a href="#tkinter">tkinter</a>
  &#8226;   <a href="#tokenize">tokenize</a>
@@ -30768,6 +30819,291 @@ imported by:
 </div>
 
 <div class="node">
+  <a name="tenacity"></a>
+  <a target="code" href="///C:/Users/Administrator/PycharmProjects/PythonProject/.venv/Lib/site-packages/tenacity/__init__.py" type="text/plain"><tt>tenacity</tt></a>
+<span class="moduletype">Package</span>  <div class="import">
+imports:
+    <a href="#abc">abc</a>
+ &#8226;   <a href="#concurrent">concurrent</a>
+ &#8226;   <a href="#concurrent.futures">concurrent.futures</a>
+ &#8226;   <a href="#dataclasses">dataclasses</a>
+ &#8226;   <a href="#functools">functools</a>
+ &#8226;   <a href="#sys">sys</a>
+ &#8226;   <a href="#tenacity">tenacity</a>
+ &#8226;   <a href="#tenacity._utils">tenacity._utils</a>
+ &#8226;   <a href="#tenacity.after">tenacity.after</a>
+ &#8226;   <a href="#tenacity.asyncio">tenacity.asyncio</a>
+ &#8226;   <a href="#tenacity.before">tenacity.before</a>
+ &#8226;   <a href="#tenacity.before_sleep">tenacity.before_sleep</a>
+ &#8226;   <a href="#tenacity.nap">tenacity.nap</a>
+ &#8226;   <a href="#tenacity.retry">tenacity.retry</a>
+ &#8226;   <a href="#tenacity.stop">tenacity.stop</a>
+ &#8226;   <a href="#tenacity.tornadoweb">tenacity.tornadoweb</a>
+ &#8226;   <a href="#tenacity.wait">tenacity.wait</a>
+ &#8226;   <a href="#threading">threading</a>
+ &#8226;   <a href="#time">time</a>
+ &#8226;   <a href="#tornado">tornado</a>
+ &#8226;   <a href="#types">types</a>
+ &#8226;   <a href="#typing">typing</a>
+ &#8226;   <a href="#warnings">warnings</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#tenacity">tenacity</a>
+ &#8226;   <a href="#tenacity._utils">tenacity._utils</a>
+ &#8226;   <a href="#tenacity.after">tenacity.after</a>
+ &#8226;   <a href="#tenacity.asyncio">tenacity.asyncio</a>
+ &#8226;   <a href="#tenacity.asyncio.retry">tenacity.asyncio.retry</a>
+ &#8226;   <a href="#tenacity.before">tenacity.before</a>
+ &#8226;   <a href="#tenacity.before_sleep">tenacity.before_sleep</a>
+ &#8226;   <a href="#tenacity.nap">tenacity.nap</a>
+ &#8226;   <a href="#tenacity.retry">tenacity.retry</a>
+ &#8226;   <a href="#tenacity.stop">tenacity.stop</a>
+ &#8226;   <a href="#tenacity.tornadoweb">tenacity.tornadoweb</a>
+ &#8226;   <a href="#tenacity.wait">tenacity.wait</a>
+ &#8226;   <a href="#translator_core">translator_core</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="tenacity._utils"></a>
+  <a target="code" href="///C:/Users/Administrator/PycharmProjects/PythonProject/.venv/Lib/site-packages/tenacity/_utils.py" type="text/plain"><tt>tenacity._utils</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#datetime">datetime</a>
+ &#8226;   <a href="#functools">functools</a>
+ &#8226;   <a href="#inspect">inspect</a>
+ &#8226;   <a href="#sys">sys</a>
+ &#8226;   <a href="#tenacity">tenacity</a>
+ &#8226;   <a href="#typing">typing</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#tenacity">tenacity</a>
+ &#8226;   <a href="#tenacity.after">tenacity.after</a>
+ &#8226;   <a href="#tenacity.asyncio">tenacity.asyncio</a>
+ &#8226;   <a href="#tenacity.asyncio.retry">tenacity.asyncio.retry</a>
+ &#8226;   <a href="#tenacity.before">tenacity.before</a>
+ &#8226;   <a href="#tenacity.before_sleep">tenacity.before_sleep</a>
+ &#8226;   <a href="#tenacity.stop">tenacity.stop</a>
+ &#8226;   <a href="#tenacity.wait">tenacity.wait</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="tenacity.after"></a>
+  <a target="code" href="///C:/Users/Administrator/PycharmProjects/PythonProject/.venv/Lib/site-packages/tenacity/after.py" type="text/plain"><tt>tenacity.after</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#logging">logging</a>
+ &#8226;   <a href="#tenacity">tenacity</a>
+ &#8226;   <a href="#tenacity._utils">tenacity._utils</a>
+ &#8226;   <a href="#typing">typing</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#tenacity">tenacity</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="tenacity.asyncio"></a>
+  <a target="code" href="///C:/Users/Administrator/PycharmProjects/PythonProject/.venv/Lib/site-packages/tenacity/asyncio/__init__.py" type="text/plain"><tt>tenacity.asyncio</tt></a>
+<span class="moduletype">Package</span>  <div class="import">
+imports:
+    <a href="#asyncio">asyncio</a>
+ &#8226;   <a href="#functools">functools</a>
+ &#8226;   <a href="#sniffio">sniffio</a>
+ &#8226;   <a href="#sys">sys</a>
+ &#8226;   <a href="#tenacity">tenacity</a>
+ &#8226;   <a href="#tenacity._utils">tenacity._utils</a>
+ &#8226;   <a href="#tenacity.asyncio.retry">tenacity.asyncio.retry</a>
+ &#8226;   <a href="#tenacity.retry">tenacity.retry</a>
+ &#8226;   <a href="#tenacity.stop">tenacity.stop</a>
+ &#8226;   <a href="#tenacity.wait">tenacity.wait</a>
+ &#8226;   <a href="#trio">trio</a>
+ &#8226;   <a href="#typing">typing</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#tenacity">tenacity</a>
+ &#8226;   <a href="#tenacity.asyncio.retry">tenacity.asyncio.retry</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="tenacity.asyncio.retry"></a>
+  <a target="code" href="///C:/Users/Administrator/PycharmProjects/PythonProject/.venv/Lib/site-packages/tenacity/asyncio/retry.py" type="text/plain"><tt>tenacity.asyncio.retry</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#abc">abc</a>
+ &#8226;   <a href="#tenacity">tenacity</a>
+ &#8226;   <a href="#tenacity._utils">tenacity._utils</a>
+ &#8226;   <a href="#tenacity.asyncio">tenacity.asyncio</a>
+ &#8226;   <a href="#typing">typing</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#tenacity.asyncio">tenacity.asyncio</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="tenacity.before"></a>
+  <a target="code" href="///C:/Users/Administrator/PycharmProjects/PythonProject/.venv/Lib/site-packages/tenacity/before.py" type="text/plain"><tt>tenacity.before</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#logging">logging</a>
+ &#8226;   <a href="#tenacity">tenacity</a>
+ &#8226;   <a href="#tenacity._utils">tenacity._utils</a>
+ &#8226;   <a href="#typing">typing</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#tenacity">tenacity</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="tenacity.before_sleep"></a>
+  <a target="code" href="///C:/Users/Administrator/PycharmProjects/PythonProject/.venv/Lib/site-packages/tenacity/before_sleep.py" type="text/plain"><tt>tenacity.before_sleep</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#logging">logging</a>
+ &#8226;   <a href="#tenacity">tenacity</a>
+ &#8226;   <a href="#tenacity._utils">tenacity._utils</a>
+ &#8226;   <a href="#typing">typing</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#tenacity">tenacity</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="tenacity.nap"></a>
+  <a target="code" href="///C:/Users/Administrator/PycharmProjects/PythonProject/.venv/Lib/site-packages/tenacity/nap.py" type="text/plain"><tt>tenacity.nap</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#tenacity">tenacity</a>
+ &#8226;   <a href="#threading">threading</a>
+ &#8226;   <a href="#time">time</a>
+ &#8226;   <a href="#typing">typing</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#tenacity">tenacity</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="tenacity.retry"></a>
+  <a target="code" href="///C:/Users/Administrator/PycharmProjects/PythonProject/.venv/Lib/site-packages/tenacity/retry.py" type="text/plain"><tt>tenacity.retry</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#abc">abc</a>
+ &#8226;   <a href="#re">re</a>
+ &#8226;   <a href="#tenacity">tenacity</a>
+ &#8226;   <a href="#typing">typing</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#tenacity">tenacity</a>
+ &#8226;   <a href="#tenacity.asyncio">tenacity.asyncio</a>
+ &#8226;   <a href="#translator_core">translator_core</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="tenacity.stop"></a>
+  <a target="code" href="///C:/Users/Administrator/PycharmProjects/PythonProject/.venv/Lib/site-packages/tenacity/stop.py" type="text/plain"><tt>tenacity.stop</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#abc">abc</a>
+ &#8226;   <a href="#tenacity">tenacity</a>
+ &#8226;   <a href="#tenacity._utils">tenacity._utils</a>
+ &#8226;   <a href="#threading">threading</a>
+ &#8226;   <a href="#typing">typing</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#tenacity">tenacity</a>
+ &#8226;   <a href="#tenacity.asyncio">tenacity.asyncio</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="tenacity.tornadoweb"></a>
+  <a target="code" href="///C:/Users/Administrator/PycharmProjects/PythonProject/.venv/Lib/site-packages/tenacity/tornadoweb.py" type="text/plain"><tt>tenacity.tornadoweb</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#'tornado.concurrent'">'tornado.concurrent'</a>
+ &#8226;   <a href="#sys">sys</a>
+ &#8226;   <a href="#tenacity">tenacity</a>
+ &#8226;   <a href="#tornado">tornado</a>
+ &#8226;   <a href="#typing">typing</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#tenacity">tenacity</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="tenacity.wait"></a>
+  <a target="code" href="///C:/Users/Administrator/PycharmProjects/PythonProject/.venv/Lib/site-packages/tenacity/wait.py" type="text/plain"><tt>tenacity.wait</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#abc">abc</a>
+ &#8226;   <a href="#random">random</a>
+ &#8226;   <a href="#tenacity">tenacity</a>
+ &#8226;   <a href="#tenacity._utils">tenacity._utils</a>
+ &#8226;   <a href="#typing">typing</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#tenacity">tenacity</a>
+ &#8226;   <a href="#tenacity.asyncio">tenacity.asyncio</a>
+
+  </div>
+
+</div>
+
+<div class="node">
   <a name="termios"></a>
   <a target="code" href="" type="text/plain"><tt>termios</tt></a>
 <span class="moduletype">MissingModule</span>  <div class="import">
@@ -30829,6 +31165,7 @@ imports:
   <div class="import">
 imported by:
     <a href="#_threading_local">_threading_local</a>
+ &#8226;   <a href="#app.py">app.py</a>
  &#8226;   <a href="#asyncio.base_events">asyncio.base_events</a>
  &#8226;   <a href="#asyncio.events">asyncio.events</a>
  &#8226;   <a href="#asyncio.mixins">asyncio.mixins</a>
@@ -30875,8 +31212,12 @@ imported by:
  &#8226;   <a href="#socketserver">socketserver</a>
  &#8226;   <a href="#subprocess">subprocess</a>
  &#8226;   <a href="#sysconfig">sysconfig</a>
+ &#8226;   <a href="#tenacity">tenacity</a>
+ &#8226;   <a href="#tenacity.nap">tenacity.nap</a>
+ &#8226;   <a href="#tenacity.stop">tenacity.stop</a>
  &#8226;   <a href="#tqdm._monitor">tqdm._monitor</a>
  &#8226;   <a href="#tqdm.std">tqdm.std</a>
+ &#8226;   <a href="#translator_core">translator_core</a>
  &#8226;   <a href="#urllib3._collections">urllib3._collections</a>
  &#8226;   <a href="#urllib3.connection">urllib3.connection</a>
  &#8226;   <a href="#urllib3.http2.connection">urllib3.http2.connection</a>
@@ -30945,9 +31286,12 @@ imported by:
  &#8226;   <a href="#ssl">ssl</a>
  &#8226;   <a href="#subprocess">subprocess</a>
  &#8226;   <a href="#tarfile">tarfile</a>
+ &#8226;   <a href="#tenacity">tenacity</a>
+ &#8226;   <a href="#tenacity.nap">tenacity.nap</a>
  &#8226;   <a href="#threading">threading</a>
  &#8226;   <a href="#tqdm._monitor">tqdm._monitor</a>
  &#8226;   <a href="#tqdm.std">tqdm.std</a>
+ &#8226;   <a href="#translator_core">translator_core</a>
  &#8226;   <a href="#unittest.case">unittest.case</a>
  &#8226;   <a href="#unittest.runner">unittest.runner</a>
  &#8226;   <a href="#urllib.request">urllib.request</a>
@@ -31081,7 +31425,8 @@ imports:
   </div>
   <div class="import">
 imported by:
-    <a href="#tkinter">tkinter</a>
+    <a href="#app.py">app.py</a>
+ &#8226;   <a href="#tkinter">tkinter</a>
  &#8226;   <a href="#tkinter.simpledialog">tkinter.simpledialog</a>
 
   </div>
@@ -31160,6 +31505,18 @@ imported by:
  &#8226;   <a href="#linecache">linecache</a>
  &#8226;   <a href="#pdb">pdb</a>
  &#8226;   <a href="#pydoc">pydoc</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="tornado"></a>
+  <a target="code" href="" type="text/plain"><tt>tornado</tt></a>
+<span class="moduletype">MissingModule</span>  <div class="import">
+imported by:
+    <a href="#tenacity">tenacity</a>
+ &#8226;   <a href="#tenacity.tornadoweb">tenacity.tornadoweb</a>
 
   </div>
 
@@ -31558,12 +31915,29 @@ imports:
  &#8226;   <a href="#google.generativeai">google.generativeai</a>
  &#8226;   <a href="#json">json</a>
  &#8226;   <a href="#os">os</a>
+ &#8226;   <a href="#queue">queue</a>
+ &#8226;   <a href="#re">re</a>
+ &#8226;   <a href="#tenacity">tenacity</a>
+ &#8226;   <a href="#tenacity.retry">tenacity.retry</a>
+ &#8226;   <a href="#threading">threading</a>
+ &#8226;   <a href="#time">time</a>
  &#8226;   <a href="#xml.etree.ElementTree">xml.etree.ElementTree</a>
 
   </div>
   <div class="import">
 imported by:
     <a href="#app.py">app.py</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="trio"></a>
+  <a target="code" href="" type="text/plain"><tt>trio</tt></a>
+<span class="moduletype">MissingModule</span>  <div class="import">
+imported by:
+    <a href="#tenacity.asyncio">tenacity.asyncio</a>
 
   </div>
 
@@ -31665,6 +32039,7 @@ imported by:
  &#8226;   <a href="#queue">queue</a>
  &#8226;   <a href="#subprocess">subprocess</a>
  &#8226;   <a href="#tempfile">tempfile</a>
+ &#8226;   <a href="#tenacity">tenacity</a>
  &#8226;   <a href="#tkinter">tkinter</a>
  &#8226;   <a href="#typing">typing</a>
  &#8226;   <a href="#typing_extensions">typing_extensions</a>
@@ -31984,6 +32359,18 @@ imported by:
  &#8226;   <a href="#rsa.key">rsa.key</a>
  &#8226;   <a href="#rsa.pem">rsa.pem</a>
  &#8226;   <a href="#rsa.pkcs1">rsa.pkcs1</a>
+ &#8226;   <a href="#tenacity">tenacity</a>
+ &#8226;   <a href="#tenacity._utils">tenacity._utils</a>
+ &#8226;   <a href="#tenacity.after">tenacity.after</a>
+ &#8226;   <a href="#tenacity.asyncio">tenacity.asyncio</a>
+ &#8226;   <a href="#tenacity.asyncio.retry">tenacity.asyncio.retry</a>
+ &#8226;   <a href="#tenacity.before">tenacity.before</a>
+ &#8226;   <a href="#tenacity.before_sleep">tenacity.before_sleep</a>
+ &#8226;   <a href="#tenacity.nap">tenacity.nap</a>
+ &#8226;   <a href="#tenacity.retry">tenacity.retry</a>
+ &#8226;   <a href="#tenacity.stop">tenacity.stop</a>
+ &#8226;   <a href="#tenacity.tornadoweb">tenacity.tornadoweb</a>
+ &#8226;   <a href="#tenacity.wait">tenacity.wait</a>
  &#8226;   <a href="#typing_extensions">typing_extensions</a>
  &#8226;   <a href="#uritemplate.api">uritemplate.api</a>
  &#8226;   <a href="#uritemplate.orderedset">uritemplate.orderedset</a>
@@ -33975,6 +34362,7 @@ imported by:
  &#8226;   <a href="#sysconfig">sysconfig</a>
  &#8226;   <a href="#tarfile">tarfile</a>
  &#8226;   <a href="#tempfile">tempfile</a>
+ &#8226;   <a href="#tenacity">tenacity</a>
  &#8226;   <a href="#threading">threading</a>
  &#8226;   <a href="#tqdm">tqdm</a>
  &#8226;   <a href="#tqdm._monitor">tqdm._monitor</a>

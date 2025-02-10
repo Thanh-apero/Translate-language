@@ -412,6 +412,7 @@ class TranslatorApp:
             
         output_dir = self.text_output_path.get()
         selected_folders = list(self.selected_values.get(0, tk.END))
+        source_xml_path = self.input_path.get()  # Lấy đường dẫn file XML gốc
         
         if not output_dir:
             self.log_text("Please select output directory!")
@@ -447,7 +448,7 @@ class TranslatorApp:
                         output_dir,
                         selected_folders=selected_folders,
                         callback=translation_callback,
-                        root=self.root
+                        source_xml_path=source_xml_path  # Truyền đường dẫn file XML gốc
                     )
                 except Exception as e:
                     self.ui_queue.put(("text_status", f"Error: {str(e)}"))
