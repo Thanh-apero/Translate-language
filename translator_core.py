@@ -89,6 +89,13 @@ def generate_json_from_xml(source_language, target_language, xml_content):
                     'position': i,
                     'attributes': dict(string_elem.attrib)
                 }
+        else:
+            # Vẫn lưu metadata cho các string không cần dịch để giữ nguyên trong output
+            string_metadata[string_elem.attrib.get('name')] = {
+                'position': i,
+                'attributes': dict(string_elem.attrib),
+                'original_text': string_elem.text
+            }
 
     json_structure = {
         "source_language": source_language,
@@ -114,13 +121,23 @@ def escape_xml_string(text):
 def update_xml_with_translations(root, translations, string_metadata):
     new_root = copy.deepcopy(root)
     translation_map = {}
-    for orig, trans in zip(string_metadata.keys(), translations):
-        translation_map[orig] = trans['text']
+    
+    # Tạo map từ các bản dịch mới
+    translation_index = 0
+    for name, meta in string_metadata.items():
+        if 'original_text' not in meta:  # Nếu là string cần dịch
+            if translation_index < len(translations):
+                translation_map[name] = translations[translation_index]['text']
+                translation_index += 1
 
-    for string_elem in new_root.findall('string'):
+    # Cập nhật các string cần dịch và xóa các string không cần dịch
+    for string_elem in list(new_root.findall('string')):
         original_name = string_elem.attrib.get('name')
         if original_name in translation_map:
             string_elem.text = escape_xml_string(translation_map[original_name])
+        else:
+            # Xóa string không cần dịch khỏi file output
+            new_root.remove(string_elem)
 
     return new_root
 
@@ -294,7 +311,24 @@ def translate_and_append_batch(string_texts, output_dir, selected_folders=None, 
                     callback("No values directories selected!")
                 return
 
-            string_names, texts = zip(*string_texts)
+            # Lọc ra các chuỗi có translatable != "false"
+            filtered_string_texts = []
+            for string_name, text in string_texts:
+                if root is not None:
+                    string_elem = root.find(f'.//string[@name="{string_name}"]')
+                    if string_elem is not None:
+                        translatable = string_elem.attrib.get('translatable', 'true').lower()
+                        if translatable != "false":
+                            filtered_string_texts.append((string_name, text))
+                else:
+                    filtered_string_texts.append((string_name, text))
+
+            if not filtered_string_texts:
+                if callback:
+                    callback("No translatable strings found!")
+                return
+
+            string_names, texts = zip(*filtered_string_texts)
 
             for dir_name in dirs:
                 try:
@@ -324,41 +358,32 @@ def translate_and_append_batch(string_texts, output_dir, selected_folders=None, 
                     if callback:
                         callback(f"Saving translations to {dir_name}...")
                     
-                    # Đọc file hiện có hoặc tạo mới nếu chưa tồn tại
                     try:
                         with open(output_file, 'r', encoding='utf-8') as f:
                             content = f.read()
                     except FileNotFoundError:
                         content = '<?xml version="1.0" encoding="utf-8"?>\n<resources>\n</resources>'
 
-                    # Xử lý từng chuỗi mới
                     for string_name, translated_text in zip(string_names, translated_texts):
-                        # Kiểm tra xem chuỗi đã tồn tại chưa
                         pattern = f'<string name="{string_name}"[^>]*>(.*?)</string>'
                         if re.search(pattern, content):
-                            # Nếu chuỗi đã tồn tại, cập nhật nó
                             content = re.sub(pattern, f'<string name="{string_name}">{translated_text}</string>', content)
                         else:
-                            # Nếu chuỗi chưa tồn tại, thêm vào cuối
                             insert_pos = content.rfind('</resources>')
                             if insert_pos != -1:
-                                # Kiểm tra xem có dòng trống không cần thiết không
                                 last_string_pos = content.rfind('</string>', 0, insert_pos)
                                 if last_string_pos != -1:
-                                    # Nếu đã có string trước đó, chỉ cần thêm một dòng mới
                                     indent = '\n    '
                                 else:
-                                    # Nếu là string đầu tiên
                                     indent = '    '
                                 new_string = f'{indent}<string name="{string_name}">{translated_text}</string>\n'
                                 content = content[:insert_pos] + new_string + content[insert_pos:]
 
-                    # Ghi lại file
                     with open(output_file, 'w', encoding='utf-8') as f:
                         f.write(content)
 
                     if callback:
-                        callback(f"Added/Updated {len(string_texts)} strings to {dir_name}")
+                        callback(f"Added/Updated {len(filtered_string_texts)} strings to {dir_name}")
 
                 except Exception as e:
                     if callback:
