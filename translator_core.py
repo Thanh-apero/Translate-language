@@ -216,14 +216,15 @@ def append_to_xml_file(output_file, string_name, text, translated_text):
             pattern = f'<string name="{string_name}"[^>]*>(.*?)</string>'
             content = re.sub(pattern, f'<string name="{string_name}">{translated_text}</string>', content)
         else:
-            last_newline = content.rfind('\n', 0, end_pos)
-            if last_newline != -1:
-                indent = content[last_newline + 1:end_pos].replace('</resources>', '')
-            else:
-                indent = '    '
-                
-            new_string = f'{indent}<string name="{string_name}">{translated_text}</string>\n{indent}'
-            content = content[:end_pos] + new_string + content[end_pos:]
+            insert_pos = content.rfind('</resources>')
+            if insert_pos != -1:
+                last_string_pos = content.rfind('</string>', 0, insert_pos)
+                if last_string_pos != -1:
+                    indent = '\n    '
+                else:
+                    indent = '    '
+                new_string = f'{indent}<string name="{string_name}">{translated_text}</string>\n'
+                content = content[:insert_pos] + new_string + content[insert_pos:]
 
         with open(output_file, 'w', encoding='utf-8') as f:
             f.write(content)
@@ -341,8 +342,15 @@ def translate_and_append_batch(string_texts, output_dir, selected_folders=None, 
                             # Nếu chuỗi chưa tồn tại, thêm vào cuối
                             insert_pos = content.rfind('</resources>')
                             if insert_pos != -1:
-                                indent = '\n    '
-                                new_string = f'{indent}<string name="{string_name}">{translated_text}</string>'
+                                # Kiểm tra xem có dòng trống không cần thiết không
+                                last_string_pos = content.rfind('</string>', 0, insert_pos)
+                                if last_string_pos != -1:
+                                    # Nếu đã có string trước đó, chỉ cần thêm một dòng mới
+                                    indent = '\n    '
+                                else:
+                                    # Nếu là string đầu tiên
+                                    indent = '    '
+                                new_string = f'{indent}<string name="{string_name}">{translated_text}</string>\n'
                                 content = content[:insert_pos] + new_string + content[insert_pos:]
 
                     # Ghi lại file
