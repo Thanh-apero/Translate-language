@@ -261,31 +261,29 @@ class TranslatorApp:
             self.available_values.delete(0, tk.END)
             self.selected_values.delete(0, tk.END)
             
+            # Lấy tất cả các thư mục values hiện có (trừ values-night)
             values_dirs = [d for d in os.listdir(directory) 
                           if os.path.isdir(os.path.join(directory, d)) 
-                          and (d == 'values' or d.startswith('values-'))]
+                          and (d == 'values' or d.startswith('values-'))
+                          and d != 'values-night']
             
+            # Đảm bảo có thư mục values gốc
             if 'values' not in values_dirs:
                 os.makedirs(os.path.join(directory, 'values'), exist_ok=True)
                 values_dirs.append('values')
             
-            common_langs = ['vi', 'zh', 'ko', 'ja', 'it', 'fr', 'de', 'es']
-            for lang in common_langs:
-                values_dir = f'values-{lang}'
-                if values_dir not in values_dirs:
-                    os.makedirs(os.path.join(directory, values_dir), exist_ok=True)
-                    values_dirs.append(values_dir)
-            
+            # Sắp xếp với values đầu tiên
             if 'values' in values_dirs:
                 values_dirs.remove('values')
                 values_dirs = ['values'] + sorted(values_dirs)
             else:
                 values_dirs = sorted(values_dirs)
             
+            # Thêm trực tiếp vào selected_values
             for d in values_dirs:
-                self.available_values.insert(tk.END, d)
+                self.selected_values.insert(tk.END, d)
             
-            self.log_text(f"Found/Created values folders: {', '.join(values_dirs)}")
+            self.log_text(f"Found values folders and auto-selected: {', '.join(values_dirs)}")
             
         except Exception as e:
             self.log_text(f"Error updating values folders: {str(e)}")
