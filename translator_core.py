@@ -323,35 +323,34 @@ def translate_and_append_batch(string_texts, output_dir, selected_folders=None, 
                     if callback:
                         callback(f"Saving translations to {dir_name}...")
                     
+                    # Đọc file hiện có hoặc tạo mới nếu chưa tồn tại
                     try:
-                        tree = ET.parse(output_file)
-                        root_elem = tree.getroot()
-                    except (FileNotFoundError, ET.ParseError):
-                        root_elem = ET.Element("resources")
-                        tree = ET.ElementTree(root_elem)
+                        with open(output_file, 'r', encoding='utf-8') as f:
+                            content = f.read()
+                    except FileNotFoundError:
+                        content = '<?xml version="1.0" encoding="utf-8"?>\n<resources>\n</resources>'
 
+                    # Xử lý từng chuỗi mới
                     for string_name, translated_text in zip(string_names, translated_texts):
-                        existing = root_elem.find(f".//string[@name='{string_name}']")
-                        if existing is not None:
-                            existing.text = escape_xml_string(translated_text)
+                        # Kiểm tra xem chuỗi đã tồn tại chưa
+                        pattern = f'<string name="{string_name}"[^>]*>(.*?)</string>'
+                        if re.search(pattern, content):
+                            # Nếu chuỗi đã tồn tại, cập nhật nó
+                            content = re.sub(pattern, f'<string name="{string_name}">{translated_text}</string>', content)
                         else:
-                            new_string = ET.SubElement(root_elem, "string")
-                            new_string.set("name", string_name)
-                            new_string.text = escape_xml_string(translated_text)
+                            # Nếu chuỗi chưa tồn tại, thêm vào cuối
+                            insert_pos = content.rfind('</resources>')
+                            if insert_pos != -1:
+                                indent = '\n    '
+                                new_string = f'{indent}<string name="{string_name}">{translated_text}</string>'
+                                content = content[:insert_pos] + new_string + content[insert_pos:]
 
-                    lines = ['<?xml version="1.0" encoding="utf-8"?>', '<resources>']
-                    for string_elem in root_elem.findall('string'):
-                        attrs = string_elem.attrib
-                        attr_str = ' '.join(f'{k}="{v}"' for k, v in attrs.items())
-                        value = string_elem.text or ""
-                        lines.append(f'    <string {attr_str}>{value}</string>')
-                    lines.append('</resources>')
-
+                    # Ghi lại file
                     with open(output_file, 'w', encoding='utf-8') as f:
-                        f.write('\n'.join(lines))
+                        f.write(content)
 
                     if callback:
-                        callback(f"Added {len(string_texts)} strings to {dir_name}")
+                        callback(f"Added/Updated {len(string_texts)} strings to {dir_name}")
 
                 except Exception as e:
                     if callback:
