@@ -82,9 +82,15 @@ def generate_json_from_xml(source_language, target_language, xml_content):
     for i, string_elem in enumerate(root.findall('string')):
         translatable = string_elem.attrib.get('translatable', 'true').lower()
         if translatable != "false":
+            # Get raw text content without auto-escaping
             text = string_elem.text
             if text:
-                # Không escape text gốc
+                # Only escape & and ' if needed
+                if '&amp;' not in text:
+                    text = text.replace('&', '&amp;')
+                if r"\'" not in text:
+                    text = text.replace("'", r"\'")
+                
                 strings_list.append({"id": i + 1, "text": text, "name": string_elem.attrib.get('name')})
                 string_metadata[string_elem.attrib.get('name')] = {
                     'position': i,
@@ -109,17 +115,16 @@ def escape_xml_string(text):
     if not isinstance(text, str):
         return text
     
-    print(f"\nBefore escape: {text}")  # Debug print
-        
-    # Chỉ escape & nếu chưa được escape
-    if '&amp;' not in text:
+    # Xử lý NBSP (Non-Breaking Space) character
+    text = text.replace('\u00A0', ' ')
+    
+    # Chỉ escape & nếu chưa được escape và không phải là một phần của entity khác
+    if '&amp;' not in text and '&lt;' not in text and '&gt;' not in text:
         text = text.replace('&', '&amp;')
-    print(f"After & escape: {text}")  # Debug print
     
     # Chỉ escape ' nếu chưa được escape
     if r"\'" not in text:
         text = text.replace("'", r"\'")
-    print(f"After ' escape: {text}")  # Debug print
     
     return text
 
@@ -127,20 +132,22 @@ def update_xml_with_translations(root, translations, string_metadata):
     new_root = copy.deepcopy(root)
     translation_map = {}
     
-    # Tạo map từ các bản dịch mới và escape các ký tự đặc biệt trong bản dịch
+    # Create map from translations and escape special characters in translations
     translation_index = 0
     for name, meta in string_metadata.items():
-        if 'original_text' not in meta:  # Nếu là string cần dịch
+        if 'original_text' not in meta:  # If string needs translation
             if translation_index < len(translations):
-                # Escape các ký tự đặc biệt trong bản dịch
+                # Get original string with HTML tags
+                original_string = root.find(f'.//string[@name="{name}"]').text
                 translated_text = translations[translation_index]['text']
+                
                 print(f"\nProcessing translation for {name}:")  # Debug print
                 escaped_text = escape_xml_string(translated_text)
                 print(f"Final escaped text: {escaped_text}")  # Debug print
                 translation_map[name] = escaped_text
                 translation_index += 1
 
-    # Cập nhật các string cần dịch và xóa các string không cần dịch
+    # Update translatable strings and remove untranslatable strings
     for string_elem in list(new_root.findall('string')):
         original_name = string_elem.attrib.get('name')
         if original_name in translation_map:
@@ -152,7 +159,7 @@ def update_xml_with_translations(root, translations, string_metadata):
     return new_root
 
 def save_translated_xml(root, output_file):
-    # Tự tạo XML string để tránh escape tự động
+    """Save the entire XML tree to file."""
     lines = ['<?xml version="1.0" encoding="utf-8"?>', '<resources>']
     
     for string_elem in root.findall('string'):
@@ -236,41 +243,58 @@ def translate_text(text, source_lang, target_lang):
     return translations[0]['text']
 
 def append_to_xml_file(output_file, string_name, text, translated_text):
+    """Legacy function for backward compatibility. Uses append_or_update_xml_string internally."""
+    return append_or_update_xml_string(output_file, string_name, text, translated_text)
+
+def append_or_update_xml_string(output_file, string_name, text, translated_text=None):
+    """Core function to handle both appending new strings and updating existing ones in XML files.
+    
+    Args:
+        output_file: Path to the XML file
+        string_name: Name attribute of the string element
+        text: The text content to add/update
+        translated_text: Optional translated text (used only when adding new strings)
+    """
     try:
-        with open(output_file, 'r', encoding='utf-8') as f:
-            content = f.read()
-            
-        if not content.strip():
+        # Try to read existing content
+        try:
+            with open(output_file, 'r', encoding='utf-8') as f:
+                content = f.read().strip()
+        except FileNotFoundError:
+            content = ''
+
+        # If file is empty or doesn't exist, create basic structure
+        if not content:
             content = '<?xml version="1.0" encoding="utf-8"?>\n<resources>\n</resources>'
             
+        # Find the position to insert/update
         end_pos = content.rfind('</resources>')
         if end_pos == -1:
             raise ValueError("Invalid XML format: missing </resources> tag")
             
+        # Escape the text content
+        final_text = escape_xml_string(translated_text if translated_text is not None else text)
+            
         if f'name="{string_name}"' in content:
+            # Update existing string
             pattern = f'<string name="{string_name}"[^>]*>(.*?)</string>'
-            content = re.sub(pattern, f'<string name="{string_name}">{translated_text}</string>', content)
+            content = re.sub(pattern, f'<string name="{string_name}">{final_text}</string>', content)
         else:
+            # Add new string
             insert_pos = content.rfind('</resources>')
             if insert_pos != -1:
                 last_string_pos = content.rfind('</string>', 0, insert_pos)
-                if last_string_pos != -1:
-                    indent = '\n    '
-                else:
-                    indent = '    '
-                new_string = f'{indent}<string name="{string_name}">{translated_text}</string>\n'
+                indent = '\n    ' if last_string_pos != -1 else '    '
+                new_string = f'{indent}<string name="{string_name}">{final_text}</string>\n'
                 content = content[:insert_pos] + new_string + content[insert_pos:]
 
+        # Write back to file
         with open(output_file, 'w', encoding='utf-8') as f:
             f.write(content)
 
-    except FileNotFoundError:
-        content = f'''<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="{string_name}">{translated_text}</string>
-</resources>'''
-        with open(output_file, 'w', encoding='utf-8') as f:
-            f.write(content)
+    except Exception as e:
+        print(f"Error processing file {output_file}: {str(e)}")
+        raise
 
 def translate_texts_batch(texts, source_lang, target_lang, batch_size=20, callback=None):
     all_translations = []
@@ -383,47 +407,9 @@ def translate_and_append_batch(string_texts, output_dir, selected_folders=None, 
                     if callback:
                         callback(f"Saving translations to {dir_name}...")
                     
-                    try:
-                        with open(output_file, 'r', encoding='utf-8') as f:
-                            lines = f.readlines()
-                            
-                        if not lines:
-                            lines = ['<?xml version="1.0" encoding="utf-8"?>\n', '<resources>\n', '</resources>']
-                            
-                        # Xử lý từng string và thêm vào content
-                        for string_name, translated_text in zip(string_names, translated_texts):
-                            # Escape bản dịch trước khi lưu
-                            escaped_text = escape_xml_string(translated_text)
-                            pattern = f'<string name="{string_name}"[^>]*>(.*?)</string>'
-                            found = False
-                            for i, line in enumerate(lines):
-                                if re.search(pattern, line):
-                                    # Nếu string đã tồn tại, cập nhật nó
-                                    lines[i] = f'    <string name="{string_name}">{escaped_text}</string>\n'
-                                    found = True
-                                    break
-                                    
-                            if not found:
-                                # Nếu là string mới, thêm vào trước </resources>
-                                for i, line in enumerate(lines):
-                                    if '</resources>' in line:
-                                        lines.insert(i, f'    <string name="{string_name}">{escaped_text}</string>\n')
-                                        break
-
-                        with open(output_file, 'w', encoding='utf-8') as f:
-                            f.writelines(lines)
-
-                    except FileNotFoundError:
-                        # Tạo file mới nếu chưa tồn tại
-                        content = '<?xml version="1.0" encoding="utf-8"?>\n<resources>\n'
-                        for string_name, translated_text in zip(string_names, translated_texts):
-                            # Escape bản dịch trước khi lưu
-                            escaped_text = escape_xml_string(translated_text)
-                            content += f'    <string name="{string_name}">{escaped_text}</string>\n'
-                        content += '</resources>'
-                        
-                        with open(output_file, 'w', encoding='utf-8') as f:
-                            f.write(content)
+                    # Use the common core function to save each string
+                    for string_name, translated_text in zip(string_names, translated_texts):
+                        append_or_update_xml_string(output_file, string_name, None, translated_text)
 
                     if callback:
                         callback(f"Added/Updated {len(filtered_string_texts)} strings to {dir_name}")
