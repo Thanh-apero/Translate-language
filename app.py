@@ -10,6 +10,7 @@ from translator_core import (
 )
 import queue
 import threading
+import re
 
 class TranslatorApp:
     def __init__(self, root):
@@ -72,10 +73,36 @@ class TranslatorApp:
             self.status_text.config(state='normal')
             
     def setup_ui(self):
-        self.main_frame = ttk.Frame(self.root)
-        self.main_frame.pack(fill='both', expand=True)
+        # Create main scrollable frame
+        main_container = ttk.Frame(self.root)
+        main_container.pack(fill='both', expand=True)
         
-        self.notebook = ttk.Notebook(self.main_frame)
+        # Create canvas with scrollbar
+        canvas = tk.Canvas(main_container)
+        scrollbar = ttk.Scrollbar(main_container, orient="vertical", command=canvas.yview)
+        self.scrollable_frame = ttk.Frame(canvas)
+        
+        # Configure scrolling
+        self.scrollable_frame.bind(
+            "<Configure>",
+            lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
+        )
+        
+        # Create window in canvas
+        canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
+        canvas.configure(yscrollcommand=scrollbar.set)
+        
+        # Pack scrollbar and canvas
+        scrollbar.pack(side="right", fill="y")
+        canvas.pack(side="left", fill="both", expand=True)
+        
+        # Add mousewheel scrolling
+        def _on_mousewheel(event):
+            canvas.yview_scroll(int(-1*(event.delta/120)), "units")
+        canvas.bind_all("<MouseWheel>", _on_mousewheel)
+        
+        # Setup notebook in scrollable frame
+        self.notebook = ttk.Notebook(self.scrollable_frame)
         self.notebook.pack(fill='both', expand=True, padx=10, pady=5)
         
         self.file_frame = ttk.Frame(self.notebook)
@@ -97,18 +124,18 @@ class TranslatorApp:
             current_tab = self.notebook.select()
             tab_id = self.notebook.index(current_tab)
             
-            self.main_frame.update_idletasks()
+            self.scrollable_frame.update_idletasks()
             
             if tab_id == 1:
                 if hasattr(self, 'text_output_path') and self.text_output_path.get():
-                    self.main_frame.after(100, lambda: self.update_values_folders(self.text_output_path.get()))
+                    self.scrollable_frame.after(100, lambda: self.update_values_folders(self.text_output_path.get()))
                     
         except Exception as e:
             print(f"Error switching tabs: {str(e)}")
 
     def on_window_resize(self, event):
         if event.widget == self.root:
-            self.main_frame.update_idletasks()
+            self.scrollable_frame.update_idletasks()
 
     def add_common_language_buttons(self, parent_frame, add_callback):
         common_langs_frame = ttk.Frame(parent_frame)
@@ -168,6 +195,27 @@ class TranslatorApp:
         strings_frame = ttk.LabelFrame(parent, text="Strings to translate", padding="5")
         strings_frame.pack(fill='x', padx=5, pady=5)
 
+        # Add bulk input frame
+        bulk_frame = ttk.LabelFrame(strings_frame, text="Bulk Input (XML format)", padding="5")
+        bulk_frame.pack(fill='x', padx=5, pady=5)
+        
+        # Container for text area and scrollbar
+        text_container = ttk.Frame(bulk_frame)
+        text_container.pack(fill='x', padx=5, pady=5)
+        
+        # Text area for input
+        self.bulk_text = tk.Text(text_container, height=6, width=70)
+        self.bulk_text.pack(side='left', fill='both', expand=True)
+        
+        bulk_scroll = ttk.Scrollbar(text_container, orient="vertical", command=self.bulk_text.yview)
+        bulk_scroll.pack(side='right', fill='y')
+        self.bulk_text.configure(yscrollcommand=bulk_scroll.set)
+        
+        # Parse button in bulk frame
+        ttk.Button(bulk_frame, text="Parse XML Strings", 
+                  command=self.parse_bulk_input).pack(fill='x', padx=5, pady=5)
+
+        # Existing single input frame
         input_frame = ttk.Frame(strings_frame)
         input_frame.pack(fill='x', padx=5, pady=5)
 
@@ -320,7 +368,7 @@ class TranslatorApp:
                     elif target == "status_text":
                         self.status_text.insert(tk.END, message + "\n")
                         self.status_text.see(tk.END)
-                    self.root.update_idletasks()
+                    self.scrollable_frame.update_idletasks()
                 except queue.Empty:
                     break
         except Exception as e:
@@ -480,6 +528,34 @@ class TranslatorApp:
         self.strings_listbox.configure(state='normal')
         self.available_values.configure(state='normal')
         self.selected_values.configure(state='normal')
+
+    def parse_bulk_input(self):
+        bulk_text = self.bulk_text.get("1.0", tk.END).strip()
+        if not bulk_text:
+            self.log_text("Please enter XML strings to parse!")
+            return
+            
+        try:
+            # Simple regex to match string elements
+            pattern = r'<string\s+name="([^"]+)">(.*?)</string>'
+            matches = re.findall(pattern, bulk_text, re.DOTALL)
+            
+            if not matches:
+                self.log_text("No valid string elements found!")
+                return
+                
+            # Add new strings (always append mode now)
+            for name, text in matches:
+                # Clean up the text (remove extra whitespace)
+                text = ' '.join(text.split())
+                item = f"{name} :: {text}"
+                self.strings_listbox.insert(tk.END, item)
+                
+            self.log_text(f"Successfully parsed {len(matches)} strings")
+            self.bulk_text.delete("1.0", tk.END)  # Clear the input area
+            
+        except Exception as e:
+            self.log_text(f"Error parsing XML strings: {str(e)}")
 
 def main():
     root = tk.Tk()

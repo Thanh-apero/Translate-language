@@ -61,8 +61,8 @@ def request(input_data):
             "output: {\n  \"translations\": [\n    {\"id\": 1, \"text\": \"Xuất PDF thất bại\"},\n    {\"id\": 2, \"text\": \"Chia sẻ dưới dạng PDF thất bại\"},\n    {\"id\": 3, \"text\": \"Xuất vào thư viện thất bại\"},\n    {\"id\": 4, \"text\": \"Chia sẻ dưới dạng hình ảnh thất bại\"},\n    {\"id\": 5, \"text\": \"In PDF thất bại\"},\n    {\"id\": 6, \"text\": \"Nhập mật khẩu\"}\n  ]\n}",
             "input: {\n  \"source_language\": \"en\",\n  \"target_language\": \"it\",\n  \"strings\": [\n    {\"id\": 1, \"text\": \"Export as PDF failed\"},\n    {\"id\": 2, \"text\": \"Share as PDF failed\"},\n    {\"id\": 3, \"text\": \"Export to gallery failed\"},\n    {\"id\": 4, \"text\": \"Share as picture failed\"},\n    {\"id\": 5, \"text\": \"Print PDF failed\"},\n    {\"id\": 6, \"text\": \"Insert password\"}\n  ]\n}",
             "output: {\n  \"translations\": [\n    {\"id\": 1, \"text\": \"Esportazione come PDF fallita\"},\n    {\"id\": 2, \"text\": \"Condivisione come PDF fallita\"},\n    {\"id\": 3, \"text\": \"Esportazione nella galleria fallita\"},\n    {\"id\": 4, \"text\": \"Condivisione come immagine fallita\"},\n    {\"id\": 5, \"text\": \"Stampa PDF fallita\"},\n    {\"id\": 6, \"text\": \"Inserisci la password\"}\n  ]\n}",
-            "input: {\n  \"source_language\": \"en\",\n  \"target_language\": \"it\",\n  \"strings\": [\n    {\"id\": 1, \"text\": \"Export as PDF failed\"},\n    {\"id\": 2, \"text\": \"Share as PDF failed\"},\n    {\"id\": 3, \"text\": \"Export to gallery failed\"},\n    {\"id\": 4, \"text\": \"Share as picture failed\"},\n    {\"id\": 5, \"text\": \"Print PDF failed\"},\n    {\"id\": 6, \"text\": \"Insert password\"}\n  ]\n}",
-            "output: {\n  \"translations\": [\n    {\"id\": 1, \"text\": \"Esportazione come PDF fallita\"},\n    {\"id\": 2, \"text\": \"Condivisione come PDF fallita\"},\n    {\"id\": 3, \"text\": \"Esportazione nella galleria fallita\"},\n    {\"id\": 4, \"text\": \"Condivisione come immagine fallita\"},\n    {\"id\": 5, \"text\": \"Stampa PDF fallita\"},\n    {\"id\": 6, \"text\": \"Inserisci la password\"}\n  ]\n}",
+            "input: {\n  \"source_language\": \"en\",\n  \"target_language\": \"vi\",\n  \"strings\": [\n    {\"id\": 1, \"text\": \"Enable <b>Notifications</b> for continuous using when the app is closed.\"}\n  ]\n}",
+            "output: {\n  \"translations\": [\n    {\"id\": 1, \"text\": \"Bật <b>Thông báo</b> của ứng dụng để tiếp tục sử dụng khi ứng dụng bị đóng.\"}\n  ]\n}",
             f"input 2: {input_data}",
             "output 2: ",
         ])
@@ -84,13 +84,13 @@ def generate_json_from_xml(source_language, target_language, xml_content):
         if translatable != "false":
             text = string_elem.text
             if text:
+                # Không escape text gốc
                 strings_list.append({"id": i + 1, "text": text, "name": string_elem.attrib.get('name')})
                 string_metadata[string_elem.attrib.get('name')] = {
                     'position': i,
                     'attributes': dict(string_elem.attrib)
                 }
         else:
-            # Vẫn lưu metadata cho các string không cần dịch để giữ nguyên trong output
             string_metadata[string_elem.attrib.get('name')] = {
                 'position': i,
                 'attributes': dict(string_elem.attrib),
@@ -108,42 +108,60 @@ def generate_json_from_xml(source_language, target_language, xml_content):
 def escape_xml_string(text):
     if not isinstance(text, str):
         return text
-        
-    replacements = {
-        '&': '&amp;',
-        "'": "\\'",
-    }
     
-    for old, new in replacements.items():
-        text = text.replace(old, new)
+    print(f"\nBefore escape: {text}")  # Debug print
+        
+    # Chỉ escape & nếu chưa được escape
+    if '&amp;' not in text:
+        text = text.replace('&', '&amp;')
+    print(f"After & escape: {text}")  # Debug print
+    
+    # Chỉ escape ' nếu chưa được escape
+    if r"\'" not in text:
+        text = text.replace("'", r"\'")
+    print(f"After ' escape: {text}")  # Debug print
+    
     return text
 
 def update_xml_with_translations(root, translations, string_metadata):
     new_root = copy.deepcopy(root)
     translation_map = {}
     
-    # Tạo map từ các bản dịch mới
+    # Tạo map từ các bản dịch mới và escape các ký tự đặc biệt trong bản dịch
     translation_index = 0
     for name, meta in string_metadata.items():
         if 'original_text' not in meta:  # Nếu là string cần dịch
             if translation_index < len(translations):
-                translation_map[name] = translations[translation_index]['text']
+                # Escape các ký tự đặc biệt trong bản dịch
+                translated_text = translations[translation_index]['text']
+                print(f"\nProcessing translation for {name}:")  # Debug print
+                escaped_text = escape_xml_string(translated_text)
+                print(f"Final escaped text: {escaped_text}")  # Debug print
+                translation_map[name] = escaped_text
                 translation_index += 1
 
     # Cập nhật các string cần dịch và xóa các string không cần dịch
     for string_elem in list(new_root.findall('string')):
         original_name = string_elem.attrib.get('name')
         if original_name in translation_map:
-            string_elem.text = escape_xml_string(translation_map[original_name])
+            string_elem.text = translation_map[original_name]
+            print(f"\nFinal XML string for {original_name}: {string_elem.text}")  # Debug print
         else:
-            # Xóa string không cần dịch khỏi file output
             new_root.remove(string_elem)
 
     return new_root
 
 def save_translated_xml(root, output_file):
-    xml_str = ET.tostring(root, encoding='unicode', method='xml')
-    formatted_xml = '<?xml version="1.0" encoding="utf-8"?>\n' + xml_str
+    # Tự tạo XML string để tránh escape tự động
+    lines = ['<?xml version="1.0" encoding="utf-8"?>', '<resources>']
+    
+    for string_elem in root.findall('string'):
+        attrs = ' '.join(f'{k}="{v}"' for k, v in string_elem.attrib.items())
+        text = string_elem.text or ''
+        lines.append(f'    <string {attrs}>{text}</string>')
+    
+    lines.append('</resources>')
+    formatted_xml = '\n'.join(lines)
 
     with open(output_file, 'w', encoding='utf-8') as f:
         f.write(formatted_xml)
@@ -374,12 +392,14 @@ def translate_and_append_batch(string_texts, output_dir, selected_folders=None, 
                             
                         # Xử lý từng string và thêm vào content
                         for string_name, translated_text in zip(string_names, translated_texts):
+                            # Escape bản dịch trước khi lưu
+                            escaped_text = escape_xml_string(translated_text)
                             pattern = f'<string name="{string_name}"[^>]*>(.*?)</string>'
                             found = False
                             for i, line in enumerate(lines):
                                 if re.search(pattern, line):
                                     # Nếu string đã tồn tại, cập nhật nó
-                                    lines[i] = f'    <string name="{string_name}">{translated_text}</string>\n'
+                                    lines[i] = f'    <string name="{string_name}">{escaped_text}</string>\n'
                                     found = True
                                     break
                                     
@@ -387,7 +407,7 @@ def translate_and_append_batch(string_texts, output_dir, selected_folders=None, 
                                 # Nếu là string mới, thêm vào trước </resources>
                                 for i, line in enumerate(lines):
                                     if '</resources>' in line:
-                                        lines.insert(i, f'    <string name="{string_name}">{translated_text}</string>\n')
+                                        lines.insert(i, f'    <string name="{string_name}">{escaped_text}</string>\n')
                                         break
 
                         with open(output_file, 'w', encoding='utf-8') as f:
@@ -397,7 +417,9 @@ def translate_and_append_batch(string_texts, output_dir, selected_folders=None, 
                         # Tạo file mới nếu chưa tồn tại
                         content = '<?xml version="1.0" encoding="utf-8"?>\n<resources>\n'
                         for string_name, translated_text in zip(string_names, translated_texts):
-                            content += f'    <string name="{string_name}">{translated_text}</string>\n'
+                            # Escape bản dịch trước khi lưu
+                            escaped_text = escape_xml_string(translated_text)
+                            content += f'    <string name="{string_name}">{escaped_text}</string>\n'
                         content += '</resources>'
                         
                         with open(output_file, 'w', encoding='utf-8') as f:
