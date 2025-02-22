@@ -285,10 +285,14 @@ def append_or_update_xml_string(output_file, string_name, text, translated_text=
             # Add new string
             insert_pos = content.rfind('</resources>')
             if insert_pos != -1:
+                # Kiểm tra xem có string nào trước đó không
                 last_string_pos = content.rfind('</string>', 0, insert_pos)
-                indent = '\n    ' if last_string_pos != -1 else '    '
-                new_string = f'{indent}<string name="{string_name}">{final_text}</string>\n'
-                content = content[:insert_pos] + new_string + content[insert_pos:]
+                if last_string_pos != -1:
+                    # Nếu có string trước đó, thêm string mới vào cùng dòng
+                    content = content[:last_string_pos + 9] + '\n    ' + f'<string name="{string_name}">{final_text}</string>' + content[insert_pos:]
+                else:
+                    # Nếu là string đầu tiên
+                    content = content[:insert_pos] + f'    <string name="{string_name}">{final_text}</string>\n' + content[insert_pos:]
 
         # Write back to file
         with open(output_file, 'w', encoding='utf-8') as f:
