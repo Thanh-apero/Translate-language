@@ -65,6 +65,8 @@ def request(input_data):
             "output: {\n  \"translations\": [\n    {\"id\": 1, \"text\": \"Esportazione come PDF fallita\"},\n    {\"id\": 2, \"text\": \"Condivisione come PDF fallita\"},\n    {\"id\": 3, \"text\": \"Esportazione nella galleria fallita\"},\n    {\"id\": 4, \"text\": \"Condivisione come immagine fallita\"},\n    {\"id\": 5, \"text\": \"Stampa PDF fallita\"},\n    {\"id\": 6, \"text\": \"Inserisci la password\"}\n  ]\n}",
             "input: {\n  \"source_language\": \"en\",\n  \"target_language\": \"vi\",\n  \"strings\": [\n    {\"id\": 1, \"text\": \"Enable <b>Notifications</b> for continuous using when the app is closed.\"}\n  ]\n}",
             "output: {\n  \"translations\": [\n    {\"id\": 1, \"text\": \"Bật <b>Thông báo</b> của ứng dụng để tiếp tục sử dụng khi ứng dụng bị đóng.\"}\n  ]\n}",
+            "input: {\n  \"source_language\": \"en\",\n  \"target_language\": \"vi\",\n  \"strings\": [\n    {\n      \"id\": 1,\n      \"text\": \"Dear User,\\n\\nThank you for using our service.\\r\\nPlease note the following:\\n\\t- Your subscription expires soon.\\n\\t- Renew to continue enjoying premium features.\\n\\nBest regards,\\nThe Support Team\"\n    },\n    {\n      \"id\": 2,\n      \"text\": \"Error!\\r\\n\\tSomething went wrong while processing your request.\\nPlease try again later or contact support.\"\n    }\n  ]\n}",
+            "output: {\n  \"translations\": [\n    {\n      \"id\": 1,\n      \"text\": \"Kính gửi người dùng,\\n\\nCảm ơn bạn đã sử dụng dịch vụ của chúng tôi.\\r\\nVui lòng lưu ý:\\n\\t- Gói đăng ký của bạn sắp hết hạn.\\n\\t- Gia hạn để tiếp tục tận hưởng các tính năng cao cấp.\\n\\nTrân trọng,\\nĐội ngũ Hỗ trợ\"\n    },\n    {\n      \"id\": 2,\n      \"text\": \"Lỗi!\\r\\n\\tĐã xảy ra sự cố khi xử lý yêu cầu của bạn.\\nVui lòng thử lại sau hoặc liên hệ bộ phận hỗ trợ.\"\n    }\n  ]\n}",
             f"input 2: {input_data}",
             "output 2: ",
         ])
@@ -225,8 +227,8 @@ def translate_xml_file(input_xml_path, output_xml_path, source_lang, target_lang
         
         if callback:
             callback(f"Translation completed. Output saved to: {output_xml_path}")
-            callback("Waiting 30 seconds before next translation...")
-        time.sleep(30)
+            callback("Waiting 3 seconds before next translation...")
+        time.sleep(3)
 
     except Exception as e:
         if callback:
@@ -326,8 +328,8 @@ def translate_texts_batch(texts, source_lang, target_lang, batch_size=20, callba
             
             if current_batch < total_batches:
                 if callback:
-                    callback(f"Waiting 30 seconds before next batch to avoid API limits...")
-                time.sleep(15)
+                    callback(f"Waiting 2 seconds before next batch to avoid API limits...")
+                time.sleep(2)
                 
         except Exception as e:
             if callback:
